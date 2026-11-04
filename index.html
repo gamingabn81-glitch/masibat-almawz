@@ -2,261 +2,52 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>مصيبة في عالم الموز 🍌</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;overflow:hidden;font-family:Arial,sans-serif;background:#87ceeb}
-canvas{display:block}
-#hud{position:fixed;top:15px;right:15px;color:white;background:#172b39dd;padding:15px;border-radius:15px;min-width:210px;line-height:1.8}
-#dialog{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);width:min(550px,90%);background:#172b39ee;color:white;padding:16px;border-radius:15px;text-align:center;display:none}
-#controls{position:fixed;bottom:20px;left:20px;color:white;background:#172b39aa;padding:12px;border-radius:12px;font-size:13px}
-#start{position:fixed;inset:0;background:#17364ddd;display:grid;place-items:center;color:white;text-align:center;z-index:5}
-#start button{background:#ffcf36;border:0;border-radius:14px;padding:15px 35px;font-size:20px;font-weight:bold;cursor:pointer}
-#cross{position:fixed;top:50%;left:50%;color:white;font-size:22px;transform:translate(-50%,-50%);pointer-events:none}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>مصيبة في عالم الموز 🍌</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+        }
+    }
+    </script>
 </head>
+
 <body>
-<div id="hud">
- <b>🍌 مصيبة في عالم الموز</b><br>
- الفصل الأول: القرية المجنونة<br>
- الموز: <span id="score">0</span> / 3<br>
- <span id="mission">المهمة: اجمع الموز!</span>
-</div>
-<div id="dialog"></div>
-<div id="controls">WASD أو الأسهم: الحركة<br>Shift: الركض<br>E: التحدث والتفاعل</div>
-<div id="cross">+</div>
-<div id="start">
- <div>
-  <div style="font-size:65px">🍌🤠</div>
-  <h1>مصيبة في عالم الموز</h1>
-  <p>مغامرة كوميدية ثلاثية الأبعاد</p>
-  <button id="play">ابدأ المغامرة</button>
-  <p style="font-size:12px">استخدم لوحة المفاتيح للتحرك</p>
- </div>
-</div>
-<script type="importmap">
-{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}
-</script>
-<script type="module">
-import * as THREE from 'three';
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x87ceeb);
-scene.fog=new THREE.Fog(0x87ceeb,35,100);
+    <div id="hud">
+        <b>🍌 مصيبة في عالم الموز</b>
+        <div>الفصل الأول: القرية المجنونة</div>
+        <div>الموز: <span id="score">0</span> / 3</div>
+        <div id="mission">المهمة: اجمع الموز!</div>
+    </div>
 
-const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,200);
-const renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth,innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-document.body.appendChild(renderer.domElement);
+    <div id="dialog"></div>
 
-scene.add(new THREE.HemisphereLight(0xffffff,0x71834b,2));
-const sun=new THREE.DirectionalLight(0xffffff,3);
-sun.position.set(-15,25,10);
-sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
-scene.add(sun);
+    <div id="controls">
+        WASD أو الأسهم: الحركة<br>
+        Shift: الركض<br>
+        E: التحدث والتفاعل
+    </div>
 
-const mat=(color)=>new THREE.MeshStandardMaterial({color,roughness:.85});
-const green=mat(0x70bd54),brown=mat(0x93613c);
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),green);
-ground.rotation.x=-Math.PI/2;
-ground.receiveShadow=true;
-scene.add(ground);
+    <div id="cross">+</div>
 
-// الطريق
-const road=new THREE.Mesh(new THREE.PlaneGeometry(9,100),mat(0xbca47b));
-road.rotation.x=-Math.PI/2;
-road.position.set(0,.02,-12);
-scene.add(road);
+    <div id="start">
+        <div class="start-content">
+            <div class="logo">🍌🤠</div>
+            <h1>مصيبة في عالم الموز</h1>
+            <p>مغامرة كوميدية ثلاثية الأبعاد</p>
+            <button id="play">ابدأ المغامرة</button>
+            <p class="hint">استخدم لوحة المفاتيح للتحرك</p>
+        </div>
+    </div>
 
-function box(w,h,d,color,x,y,z){
- const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));
- m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;
- scene.add(m);return m;
-}
-function sphere(r,color,x,y,z){
- const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),mat(color));
- m.position.set(x,y,z);m.castShadow=true;scene.add(m);return m;
-}
+    <script type="module" src="./src/main.js"></script>
 
-// أشجار
-function tree(x,z){
- const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.22,.3,2,8),brown);
- trunk.position.set(x,1,z);trunk.castShadow=true;scene.add(trunk);
- const top=sphere(1.25,0x278c48,x,2.6,z);
- const top2=sphere(.8,0x43a94d,x+.5,3,z);
-}
-for(let i=0;i<65;i++){
- let x=(Math.random()-.5)*75,z=(Math.random()-.5)*85;
- if(Math.abs(x)<8&&z<12)continue;
- tree(x,z);
-}
-
-// منازل ملونة
-function house(x,z,color){
- box(5,3.3,4,color,x,1.65,z);
- const roof=new THREE.Mesh(new THREE.ConeGeometry(3.8,2.3,4),mat(0x984d35));
- roof.position.set(x,4.4,z);roof.rotation.y=Math.PI/4;
- roof.castShadow=true;scene.add(roof);
- box(.9,1.7,.15,0x543a29,x, .85,z-2.08);
- box(1,1,.12,0x8ce4ee,x-1.4,2,z-2.08);
- box(1,1,.12,0x8ce4ee,x+1.4,2,z-2.08);
-}
-house(-12,-8,0xf2bc67);
-house(12,-10,0xf28c87);
-house(-13,7,0x91b9ef);
-house(14,8,0xf2e58c);
-
-// البطل
-const player=new THREE.Group();
-scene.add(player);
-const body=new THREE.Group();
-player.add(body);
-function part(parent,geo,color,x,y,z){
- const m=new THREE.Mesh(geo,mat(color));
- m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;
-}
-part(body,new THREE.CylinderGeometry(.38,.48,.95,12),0x3479d5,0,1.15,0);
-part(body,new THREE.SphereGeometry(.4,16,16),0xf0bb8c,0,2,0);
-part(body,new THREE.SphereGeometry(.43,16,12),0x55351e,0,2.3,0);
-part(body,new THREE.BoxGeometry(.55,.13,.3),0xffcf35,0,2.56,0);
-part(body,new THREE.SphereGeometry(.07,12,12),0x222222,-.14,2.03,.35);
-part(body,new THREE.SphereGeometry(.07,12,12),0x222222,.14,2.03,.35);
-part(body,new THREE.SphereGeometry(.075,12,12),0xd65c42,0,1.87,.37);
-const legs=[];
-for(let x of [-.2,.2]){
- const leg=part(body,new THREE.CylinderGeometry(.13,.15,.55,8),0x303e75,x,.43,0);
- legs.push(leg);
-}
-const arms=[];
-for(let x of [-.48,.48]){
- const arm=part(body,new THREE.CylinderGeometry(.12,.15,.65,8),0xf0bb8c,x,1.25,0);
- arms.push(arm);
-}
-player.position.set(0,0,5);
-
-// دجاجة مضحكة
-const chicken=new THREE.Group();
-scene.add(chicken);
-chicken.position.set(4,0,-9);
-part(chicken,new THREE.SphereGeometry(.65,16,16),0xffffff,0,1,0);
-part(chicken,new THREE.SphereGeometry(.22,12,12),0xffffff,0,1.55,.05);
-part(chicken,new THREE.ConeGeometry(.18,.35,8),0xff7722,0,1.5,.32);
-part(chicken,new THREE.ConeGeometry(.16,.25,8),0xe73535,0,1.84,0);
-for(let x of [-.1,.1])part(chicken,new THREE.SphereGeometry(.045,8,8),0x222222,x,1.62,.23);
-part(chicken,new THREE.CylinderGeometry(.04,.04,.4,8),0xffa322,-.2,.25,0);
-part(chicken,new THREE.CylinderGeometry(.04,.04,.4,8),0xffa322,.2,.25,0);
-
-// الموز القابل للجمع
-const bananas=[];
-function banana(x,z){
- const g=new THREE.Group();
- const b=new THREE.Mesh(new THREE.TorusGeometry(.32,.11,8,16,Math.PI),mat(0xffdf22));
- b.rotation.z=Math.PI/2;b.rotation.x=Math.PI/2;
- g.add(b);g.position.set(x,.85,z);scene.add(g);
- bananas.push(g);
-}
-banana(-5,-3);banana(6,2);banana(12,-19);
-
-// السحب
-for(let i=0;i<8;i++){
- const cloud=new THREE.Group();
- for(let j=0;j<4;j++){
-  const c=new THREE.Mesh(new THREE.SphereGeometry(1.2,12,10),mat(0xffffff));
-  c.position.set(j*.9,Math.random()*.4,0);cloud.add(c);
- }
- cloud.position.set((Math.random()-.5)*70,13+Math.random()*5,-25-Math.random()*40);
- scene.add(cloud);
-}
-
-const keys={};
-let started=false,score=0,dialogTimer;
-addEventListener('keydown',e=>{
- keys[e.key.toLowerCase()]=true;
- if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();
- if(e.key.toLowerCase()==='e')interact();
-});
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-
-function say(text){
- const d=document.getElementById('dialog');
- d.textContent=text;d.style.display='block';
- clearTimeout(dialogTimer);
- dialogTimer=setTimeout(()=>d.style.display='none',5000);
-}
-function interact(){
- if(!started)return;
- if(player.position.distanceTo(chicken.position)<4){
- say(score>=3?
- '🐔 الدجاجة: ممتاز! وجدت كل الموز. الباب السري ينتظرك في الفصل القادم!':
- '🐔 الدجاجة: يا بطل! اجمع ثلاث موزات، وإلا سأضطر لأكل حذائك!');
- }else{
- say('لا يوجد أحد هنا. استكشف القرية واجمع الموز!');
- }
-}
-document.getElementById('play').onclick=()=>{
- started=true;
- document.getElementById('start').style.display='none';
- say('🐔 الدجاجة: النجدة! سرق الموز كل أموال القرية! اجمع 3 موزات!');
-};
-
-const clock=new THREE.Clock();
-const direction=new THREE.Vector3();
-function animate(){
- requestAnimationFrame(animate);
- const dt=Math.min(clock.getDelta(),.04);
- if(started){
-  let dx=0,dz=0;
-  if(keys.w||keys.arrowup)dz-=1;
-  if(keys.s||keys.arrowdown)dz+=1;
-  if(keys.a||keys.arrowleft)dx-=1;
-  if(keys.d||keys.arrowright)dx+=1;
-  direction.set(dx,0,dz);
-  if(direction.length()>0){
-   direction.normalize();
-   const speed=(keys.shift?10:5)*dt;
-   player.position.addScaledVector(direction,speed);
-   player.position.x=THREE.MathUtils.clamp(player.position.x,-35,35);
-   player.position.z=THREE.MathUtils.clamp(player.position.z,-40,35);
-   player.rotation.y=Math.atan2(direction.x,direction.z);
-   body.position.y=Math.abs(Math.sin(clock.elapsedTime*12))*.09;
-   legs[0].rotation.x=Math.sin(clock.elapsedTime*12)*.5;
-   legs[1].rotation.x=-Math.sin(clock.elapsedTime*12)*.5;
-   arms[0].rotation.x=-legs[0].rotation.x;
-   arms[1].rotation.x=-legs[1].rotation.x;
-  }else{
-   body.position.y=0;
-   legs.forEach(l=>l.rotation.x=0);
-   arms.forEach(l=>l.rotation.x=0);
-  }
-  for(let i=bananas.length-1;i>=0;i--){
-   const b=bananas[i];b.rotation.y+=dt*2;b.position.y=.85+Math.sin(clock.elapsedTime*3+i)*.12;
-   if(player.position.distanceTo(b.position)<1.5){
-    scene.remove(b);bananas.splice(i,1);score++;
-    document.getElementById('score').textContent=score;
-    document.getElementById('mission').textContent=score>=3?'المهمة مكتملة! تحدث مع الدجاجة':'استمر في جمع الموز!';
-    say('🍌 حصلت على موزة! المجموع: '+score);
-   }
-  }
-  const target=new THREE.Vector3(player.position.x,4.5,player.position.z+8);
-  camera.position.lerp(target,1-Math.pow(.001,dt));
-  const look=new THREE.Vector3(player.position.x,1.3,player.position.z-3);
-  camera.lookAt(look);
- }
- renderer.render(scene,camera);
-}
-animate();
-
-addEventListener('resize',()=>{
- camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
-});
-</script>
 </body>
 </html>
